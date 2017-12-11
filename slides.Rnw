@@ -1,0 +1,169 @@
+\documentclass{beamer}
+
+\begin{document}
+
+\title{A Christmas Carol - Comparison Barplots}
+\author{Dayana Moncada}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}
+  \frametitle{Outline}
+    \tableofcontents
+\end{frame}
+
+\section{Install and Load Libraries}
+\begin{frame}[fragile]
+  \frametitle{Install and Load Libraries}
+    \begin{itemize}
+      \item
+        <<warning=FALSE,message=FALSE>>=
+        library(dplyr)
+        @
+      \item
+        <<warning=FALSE,message=FALSE>>=
+        library(tidytext)
+        @
+    \item
+        <<warning=FALSE,message=FALSE>>=
+        library(gutenbergr)
+        @
+    \item
+        <<warning=FALSE,message=FALSE>>=
+        library(ggplot2)
+        @
+    \item
+        <<warning=FALSE,message=FALSE>>=
+        library(stringr)
+        @
+    
+    \end{itemize}
+\end{frame}
+
+\section{Access Project Gutenberg}
+\begin{frame}[fragile]
+  \frametitle{Access Project Gutenberg}
+    <<message=FALSE,warning=FALSE>>=
+    df<-gutenberg_works(str_detect(title,'A Christmas Carol'))
+    df$gutenberg_id
+    df$title
+    @
+\end{frame}
+
+\section{Download Carol}
+\begin{frame}[fragile]
+  \frametitle{Download Carol}
+    <<warning=FALSE,message=FALSE>>=
+    carol<-gutenberg_download(46)
+    @
+\end{frame}
+
+\section{Unpack the Words}
+\begin{frame}[fragile]
+  \frametitle{Unpack the Words}
+    <<>>=
+    carol_words<-carol%>%
+      unnest_tokens(word,text)
+    colnames(carol_words)
+    @
+\end{frame}
+
+\section{The Bing Lexicon}
+\begin{frame}[fragile]
+  \frametitle{The Bing Lexicon}
+  <<>>=
+    bing<-get_sentiments('bing')
+    colnames(bing)
+    bing[498:500,]
+  @
+\end{frame}
+
+\section{The Inner Join}
+\begin{frame}[fragile]
+  \frametitle{The Inner Join}
+  <<>>=
+    carol_words<-inner_join(carol_words,bing)
+    carol_words$gutenberg_id<-NULL
+    carol_words[498:500,]
+  @
+\end{frame}
+
+\section{Plotting Sentiments}
+\begin{frame}[fragile]
+  \frametitle{Positive Words}
+<<>>=
+carol_pos<-carol_words%>%
+  filter(sentiment=='positive')%>%
+  group_by(word)%>%
+  summarize(count=n(),sentiment=first(sentiment))%>%
+  arrange(count)%>%
+  top_n(10,wt=count)
+
+carol_pos$word<-factor(carol_pos$word,levels=carol_pos$word)
+
+ggplot()+
+  geom_bar(data=carol_pos,aes(x=word,y=count),stat='identity')+
+  coord_flip()
+@
+\end{frame}
+\begin{frame}[fragile]  
+  \frametitle{Plotting}
+<<>>=
+
+carol_pos$word<-factor(carol_pos$word,levels=carol_pos$word)
+
+ggplot()+
+  geom_bar(data=carol_pos,aes(x=word,y=count),stat='identity')+
+  coord_flip()
+@
+\end{frame}
+
+\section{Negative Words}
+\begin{frame}[fragile]
+  \frametitle{Negative Words}
+<<>>=
+
+carol_neg<-carol_words%>%
+  filter(sentiment=='negative')%>%
+  group_by(word)%>%
+  summarize(count=n(),sentiment=first(sentiment))%>%
+  arrange(count)%>%
+  filter(word != 'miss')%>%
+  top_n(10,wt=count)
+@
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Plotting}
+<<>>=
+
+carol_neg$word<-factor(carol_neg$word,levels=carol_neg$word)
+
+ggplot()+
+  geom_bar(data=carol_neg,aes(x=word,y=count),stat='identity')+
+  coord_flip()
+@
+\end{frame}
+
+
+\section{Comparison Plot}
+\begin{frame}[fragile]
+  \frametitle{Comparison Plot}
+<<>>=
+
+carol_comp<-rbind(carol_pos,carol_neg)
+
+ggplot()+
+  geom_bar(data=carol_comp,aes(x=word,y=count, 
+                               fill=sentiment, color=sentiment),stat='identity')+
+  coord_flip()+
+  facet_wrap(~sentiment,scales='free_y')+
+  scale_fill_manual(values=c('green','red'))+
+scale_color_manual(values=c('green','red'))
+
+@
+
+\end{frame}
+\end{document}

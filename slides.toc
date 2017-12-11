@@ -1,0 +1,9 @@
+\beamer@sectionintoc {1}{Install and Load Libraries}{3}{0}{1}
+\beamer@sectionintoc {2}{Access Project Gutenberg}{4}{0}{2}
+\beamer@sectionintoc {3}{Download Carol}{5}{0}{3}
+\beamer@sectionintoc {4}{Unpack the Words}{6}{0}{4}
+\beamer@sectionintoc {5}{The Bing Lexicon}{7}{0}{5}
+\beamer@sectionintoc {6}{The Inner Join}{8}{0}{6}
+\beamer@sectionintoc {7}{Plotting Sentiments}{9}{0}{7}
+\beamer@sectionintoc {8}{Negative Words}{11}{0}{8}
+\beamer@sectionintoc {9}{Comparison Plot}{13}{0}{9}
